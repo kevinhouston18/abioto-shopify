@@ -1,0 +1,402 @@
+
+{{ 'section-footer.css' | asset_url | stylesheet_tag }}
+
+{%- if section.settings.remove_margin -%}
+  {% style %}
+    .main-footer {
+      margin-top: calc(var(--container-vertical-space) * -1);
+    }
+  {% endstyle %}
+{%- endif -%}
+
+{%- if section.blocks.size > 0 -%}
+
+  <div class="container--large gutter-top--xlarge gutter-bottom--xlarge footer-top" data-js-inert>
+    <div class="grid grid--layout grid--gap-xlarge {{ section.settings.layout }}">
+      {%- for block in section.blocks -%}
+
+        <div class="footer-item" {{ block.shopify_attributes }}>
+
+          {%- if block.settings.title -%}
+            <{{ section.settings.seo_h_tag }} class="footer-item__title {% if block.settings.size %} {{ block.settings.size }} {% else %} h5 {% endif %}" style="display:block">{{ block.settings.title | escape }}</{{ section.settings.seo_h_tag }}>
+          {%- endif -%}
+
+          {%- case block.type -%}
+
+            {%- when 'text' -%}
+              <div class="footer-item__content rte">
+                {%- liquid
+                  echo block.settings.content
+                  if block.settings.show_social_icons
+                    render 'social-icons'
+                  endif
+                  if block.settings.enable_follow_on_shop 
+                    echo shop | login_button: action: 'follow'
+                  endif
+                -%}
+              </div>
+              
+              {%- when 'menu' -%}
+                <nav class="footer-item__menu rte">
+                  {%- for link in linklists[block.settings.menu].links -%}
+                    <span>
+                      <a href="{{ link.url }}" {% if block.settings.open_in_new_window == true %} target="_blank" {% endif %}>{{ link.title | escape }}</a>
+                    </span>
+                  {%- endfor -%}
+                </nav>
+
+
+            {%- when 'image' -%}
+              <div class="footer-item__image">
+                {%- if block.settings.link -%}
+                  <a href="{{ block.settings.link }}" {% unless block.settings.open_in_new_window == false %} target="_blank" {% endunless %}>
+                {%- endif -%}  
+
+                {%- liquid
+                  if block.settings.image
+                    if section.settings.layout contains 'grid-4'
+                      assign sizes = 'sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, (max-width: 1280px) calc((100vw - 100px / 4), 290px"'
+                    else 
+                      assign sizes = 'sizes="(max-width: 767px) 100vw, (max-width: 1280px) calc((100vw - 100px / 3), 390px"'
+                    endif
+                    render 'lazy-image', image: block.settings.image, sizes: sizes, class: 'lazy-image--no-transition'
+                  else
+                    echo 'image' | placeholder_svg_tag
+                  endif
+                -%}
+
+                {%- if block.settings.link -%}
+                </a>
+                {%- endif -%}  
+              </div>
+
+              {%- when 'payment' -%}
+                <div class="footer-item__icons">
+                  {%- liquid 
+                    for type in shop.enabled_payment_types
+                      echo type | payment_type_svg_tag: class: 'payment-icon'
+                    endfor
+                  -%}
+                </div>
+
+              {%- when 'newsletter' -%} 
+                <div class="footer-item__newsletter">
+                  <a href="https://abioto.biz/">
+                    <img src="https://cdn.shopify.com/s/files/1/0621/6237/0714/files/aboito_logomain300_2.png?v=1736505601">
+                  </a>
+                  <p>Sign up for our newsletter to keep in touch!</p>
+                  {%- assign form_id = 'newsletter-footer-block' -%}
+                  {%- form 'customer', id: form_id, class: '' -%}
+                    {%- if form.posted_successfully? -%}
+                      <p>
+                        {{ 'general.newsletter.confirmation' | t }}
+                      </p>
+                    {%- endif -%}
+                    {%- unless form.posted_successfully? -%}
+                      <fieldset>
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        <div class="form-row" style="position:relative">
+                          <input type="email" class="newsletter__input" value="{% if customer %}{{ customer.email }}{% endif %}" placeholder="{{ 'general.newsletter.email_label' | t }}" name="contact[email]" id="Email-{{ form_id }}" aria-label="{{ 'general.newsletter.email_label' | t }}" autocorrect="off" autocapitalize="off" required> 
+                          <button type="submit" id="Subscribe-{{ form_id }}" aria-label="{{ 'general.newsletter.submit_label' | t }}">
+                              <span class="visually-hidden">{{ 'general.newsletter.submit_label' | t }}</span>
+                              <span aria-hidden="true" role="img">
+                                <svg width="18" height="15" viewBox="0 0 18 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <g clip-path="url(#clip0_383_13074)">
+                                  <path d="M1.76223 5.92693C1.83123 5.91593 1.90023 5.91093 1.96923 5.91193H13.7822L13.5252 5.79693C13.275 5.68415 13.046 5.52923 12.8482 5.33893L9.53523 2.17293C9.32508 1.98551 9.19121 1.72734 9.15912 1.44759C9.12703 1.16784 9.19897 0.886062 9.36123 0.65593C9.466 0.52321 9.59693 0.413437 9.74589 0.333424C9.89485 0.253411 10.0587 0.204866 10.2272 0.1908C10.3957 0.176735 10.5653 0.19745 10.7254 0.251659C10.8856 0.305869 11.0329 0.392416 11.1582 0.50593L17.1482 6.23193C17.2592 6.33562 17.3476 6.46096 17.4082 6.60021C17.4688 6.73946 17.5001 6.88965 17.5003 7.0415C17.5005 7.19334 17.4695 7.34361 17.4093 7.48301C17.3491 7.62241 17.2609 7.74797 17.1502 7.85193L11.1592 13.5779C11.036 13.6933 10.8905 13.7822 10.7317 13.8392C10.5729 13.8962 10.404 13.9201 10.2356 13.9094C10.0672 13.8987 9.90273 13.8537 9.75236 13.7771C9.60199 13.7005 9.46888 13.5939 9.36123 13.4639C9.19897 13.2338 9.12703 12.952 9.15912 12.6723C9.19121 12.3925 9.32508 12.1343 9.53523 11.9469L12.8422 8.77493C13.0172 8.60593 13.2192 8.46493 13.4412 8.35693L13.8012 8.20193H2.03423C1.42323 8.22393 0.886233 7.81493 0.771233 7.23993C0.666233 6.61693 1.11023 6.02793 1.76223 5.92693Z" fill="white"/>
+                                  </g>
+                                  <defs>
+                                  <clipPath id="clip0_383_13074">
+                                  <rect width="17" height="14" fill="white" transform="translate(0.5 0.187012)"/>
+                                  </clipPath>
+                                  </defs>
+                                </svg>
+                              </span>
+                          </button>
+                        </div>
+                      </fieldset>
+                    {%- endunless -%}
+                  {%- endform -%}
+
+                </div>
+
+          {%- endcase -%}
+
+        </div>
+
+      {%- endfor -%}
+    </div>
+  </div>
+
+{%- endif -%}
+
+<div class="footer-bottom" data-js-inert>
+  <div class="container--large gutter-top--regular gutter-bottom--regular rte">
+
+    <span>
+      {{ 'general.copyright' | t }} &copy; {{ 'now' | date: "%Y" }} <a href="{{ routes.root_url }}">{{ shop.name | escape }}</a>.
+      {%- if section.settings.show_locale_selector or section.settings.show_country_selector -%}
+        <span class="powered-by-shopify">{{ powered_by_link }}</span>
+      {%- endif -%}
+    </span>
+
+    {%- if section.settings.show_locale_selector == false and section.settings.show_country_selector == false -%}
+      <span class="powered-by-shopify">{{ powered_by_link }}</span>
+    {%- else -%}
+      {%- render 'localization-form', show_country_selector: section.settings.show_country_selector, show_locale_selector: section.settings.show_locale_selector, location: 'footer' -%}
+    {%- endif -%}
+
+      <div class="privacy-links">
+        <ul>
+            <li>
+                <a href="https://abioto.biz/pages/privacy-policy">Privacy Policy</a>
+            </li>
+            <li>
+                <a href="https://abioto.biz/pages/refund-and-returns-policy">Return and Refund Policy</a>
+            </li>
+        </ul>
+      </div>
+    
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "t:sections.footer.name",
+    "class": "main-footer",
+    "max_blocks": 8,
+    "settings": [
+      {
+        "type": "select",
+        "id": "layout",
+        "label": "t:sections.local-extra-words.sections.columns.name",
+        "info": "t:sections.local-extra-words.sections.columns.info",
+        "options": [
+          {
+            "value": "grid-3 grid-lap-1",
+            "label": "t:sections.local-extra-words.sections.columns.option__2"
+          },
+          {
+            "value": "grid-4 grid-portable-2 grid-lap-1",
+            "label": "t:sections.local-extra-words.sections.columns.option__3"
+          }
+        ],
+        "default": "grid-4 grid-portable-2 grid-lap-1"
+      },
+      {
+        "type": "header",
+        "content": "t:sections.footer.settings.language_selector.content",
+        "info": "t:sections.footer.settings.language_selector.info"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_locale_selector",
+        "label": "t:sections.footer.settings.language_selector_show.label",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "t:sections.footer.settings.country_selector.content",
+        "info": "t:sections.footer.settings.country_selector.info"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_country_selector",
+        "label": "t:sections.footer.settings.country_selector_show.label",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "t:local-march-update.labels.section_design"
+      },
+      {
+        "type": "checkbox",
+        "id": "remove_margin",
+        "label": "t:sections.local-extra-words.sections.rich-text.settings.remove_margin.label",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "t:sections.refactor_words.seo.name"
+      },
+      {
+        "type": "select",
+        "id": "seo_h_tag",
+        "label": "t:sections.refactor_words.seo.label",
+        "info": "t:sections.refactor_words.seo.info",
+        "options": [
+          {
+            "value": "h1",
+            "label": "H1"
+          },
+          {
+            "value": "h2",
+            "label": "H2"
+          },
+          {
+            "value": "h3",
+            "label": "H3"
+          },
+          {
+            "value": "h4",
+            "label": "H4"
+          },
+          {
+            "value": "span",
+            "label": "span"
+          }
+        ],
+        "default": "h4"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "text",
+        "name": "t:sections.local-extra-words.sections.main-footer.blocks.text.name",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.footer.blocks.text.settings.title.label",
+            "default": "Contact information"
+          },
+          {
+            "type": "select",
+            "id": "size",
+            "label": "t:sections.local-extra-words.settings_schema.product-card.title-size.name",
+            "options": [
+              {
+                "value": "h5",
+                "label": "t:sections.footer.blocks.text.settings.text_size.options__1.label"
+              },
+              {
+                "value": "h4",
+                "label": "t:sections.footer.blocks.text.settings.text_size.options__2.label"
+              }
+            ],
+            "default": "h4"
+          },
+          {
+            "type": "richtext",
+            "id": "content",
+            "label": "t:sections.footer.blocks.text.settings.content.label",
+            "default": "<p>Write a short statement about your brand.</p>"
+          },
+          {
+            "type": "header",
+            "content": "t:sections.local-extra-words.sections.announcement-bar.settings.social.header"
+          },
+          {
+            "type": "paragraph",
+            "content": "t:sections.local-extra-words.sections.announcement-bar.settings.social.info"
+          },
+          {
+            "type": "checkbox",
+            "id": "show_social_icons",
+            "label": "t:sections.local-extra-words.sections.announcement-bar.settings.social.label",
+            "default": true
+          },
+          {
+            "type": "header",
+            "content": "t:settings_schema.follow_on_shop.content"
+          },
+          {
+            "type": "paragraph",
+            "content": "t:settings_schema.follow_on_shop.info"
+          },
+          {
+            "type": "checkbox",
+            "id": "enable_follow_on_shop",
+            "label": "t:settings_schema.follow_on_shop.label",
+            "default": true
+          }
+        ]
+      },
+      {
+        "type": "menu",
+        "name": "t:sections.split-extra-words.sections.footer.blocks.menu.name",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.footer.blocks.text.settings.title.label",
+            "default": "Quick links"
+          },
+          {
+            "type": "link_list",
+            "id": "menu",
+            "label": "t:sections.split-extra-words.sections.footer.blocks.menu.label",
+            "default": "footer",
+            "info": "t:sections.footer.blocks.menus.settings.menu_1.info"
+          },
+          {
+            "type": "checkbox",
+            "id": "open_in_new_window",
+            "label": "t:sections.local-extra-words.sections.announcement-bar.blocks.content.settings.target",
+            "default": false
+          }
+        ]
+      },
+      {
+        "type": "image",
+        "name": "t:sections.footer.blocks.image.name",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.footer.blocks.text.settings.title.label",
+            "default": "Trust badge"
+          },
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "t:sections.footer.blocks.image.settings.image.label"
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": "t:sections.local-extra-words.sections.announcement-bar.blocks.content.settings.link"
+          },
+          {
+            "type": "checkbox",
+            "id": "open_in_new_window",
+            "label": "t:sections.local-extra-words.sections.announcement-bar.blocks.content.settings.target",
+            "default": false
+          }
+        ]
+      },
+      {
+        "type": "payment",
+        "name": "t:sections.local-extra-words.sections.main-footer.blocks.payment.name",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.footer.blocks.text.settings.title.label",
+            "default": "Supported payment methods"
+          },
+          {
+            "type": "paragraph",
+            "content": "t:sections.local-extra-words.sections.main-footer.blocks.payment.info"
+          }
+        ]
+      },
+      {
+        "type": "newsletter",
+        "name": "t:sections.newsletter.name",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.footer.blocks.text.settings.title.label",
+            "default": "Newsletter"
+          }
+        ]
+      }
+    ],
+    "enabled_on": {
+      "groups": ["footer"]
+    }
+  }
+{% endschema %}

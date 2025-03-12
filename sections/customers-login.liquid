@@ -1,0 +1,169 @@
+{{ 'section-account.css' | asset_url | stylesheet_tag }}
+
+<div class="container--large container--vertical-space">
+	<div class="account">
+            <div class="login-side-img">
+              <h1>Bake With The Best</h1>
+              <h2><span>Craft</span> Perfect Breads with ABIOTO Baking <span>Gift</span>  </h2>
+            </div>
+            <div class="login-form">
+              {%- form 'customer_login' -%}
+                  <img src="https://cdn.shopify.com/s/files/1/0621/6237/0714/files/aboito_logomain300_2.png?v=1736505601">
+                  <!-- <h1 class="h2 gutter-bottom--regular">{{ 'customers.login_page.title' | t }}</h1> -->
+                  <h1 class="h2 gutter-bottom--regular">Welcome Back</h1>
+                    <p>Your Journey Awaits—Log In to Continue.</p>
+                  <div id="resetSuccess" style="display:none;">
+                      {%- liquid
+                          assign message = 'customers.login_page.password_reset.success_message' | t
+                          render 'form-success', message: message
+                      -%}
+                  </div>
+    
+                  {%- render 'form-errors', form: form -%}
+    
+                  <div class="account__form-block ">
+    
+                      <div class="account__form-row">
+                          <label for="customer_email" class="hidden">{{ 'customers.login_page.form_email_label' | t }}</label>
+                          <input type="email" value="" name="customer[email]" id="customer_email" placeholder="{{ 'customers.login_page.form_email_label' | t }}" {% if form.errors contains "email" %} class="error"{% endif %} autocorrect="off" autocapitalize="off" autofocus>
+                      </div>
+                      
+                      {%- if form.password_needed -%}
+                          <div class="account__form-row">
+                              <label for="customer_password" class="hidden">{{ 'customers.login_page.form_password_label' | t }}</label>
+                              <input type="password" value="" name="customer[password]" id="customer_password" placeholder="{{ 'customers.login_page.form_password_label' | t }}" {% if form.errors contains "password" %} class="error"{% endif %}>
+                          </div>
+                      {%- endif -%}
+    
+                      <div class="form-actions gutter-top--small">
+                          {% if form.password_needed %}
+                            <span style="display: block;" class="text-size--small"><a href="#recover" onclick="showRecoverPasswordForm();return false;">
+                                                                                     <!-- {{ 'customers.login_page.forgot_password_check' | t }} -->
+                                Forgot Password ?
+                            </a></span>
+                          {% endif %}
+                          <button type="submit" class="button button--solid button--regular"  >
+                            {{ 'customers.login_page.form_login_button' | t }}
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14.4297 5.92999L20.4997 12L14.4297 18.07" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 12H20.33" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </button>
+    
+                          <div style="text-align: center;" class="gutter-top--regular">
+                             
+                              <!-- <span style="display: block;"><strong>{{ 'customers.login_page.new_customer_button' | t | customer_register_link }}</strong></span> -->
+                                    <p>Don’t have an account ? 
+                                      <a href="https://abioto.biz/account/register">
+                                        Register Here
+                                      </a>
+                                    </p>
+                          </div>
+    
+                      </div>
+                  </div>
+              {%- endform -%}
+           
+
+      
+			<div id="recover_password" style="display: none;">
+
+                <a href="#" class="button button--outline button--regular back" onclick="hideRecoverPasswordForm();return false;">
+                  <!-- {{ 'customers.login_page.password_reset.cancel_button' | t }} -->
+                  <svg width="9" height="18" viewBox="0 0 9 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.99984 16.9201L1.47984 10.4001C0.709844 9.63008 0.709844 8.37008 1.47984 7.60008L7.99984 1.08008" stroke="#001C41" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Back to Login
+                </a>
+
+				<!-- <h3 class="h2 gutter-bottom--regular">{{ 'customers.login_page.password_reset.title' | t }}</h3>
+				
+				<span class="alert alert--note">
+					{{ 'customers.login_page.password_reset.subtitle' | t }}
+				</span> -->
+              
+                  <img src="https://cdn.shopify.com/s/files/1/0621/6237/0714/files/aboito_logomain300_2.png?v=1736505601">
+                  <h1 class="h2 gutter-bottom--regular">Forgot Password</h1>
+                    <p>Please enter your email, & we’ll send you a link to reset your password.</p>
+
+				{% form 'recover_customer_password', class: 'simple-form' %}
+                 
+					
+                    {% render 'form-errors', form: form %}
+
+					{% if form.posted_successfully? %}
+						{% assign reset_success = true %}
+					{% endif %}
+
+					<div class="account__form-block ">
+
+						<div class="account__form-row">
+							<label for="recover-email" class="hidden">{{ 'customers.login_page.password_reset.email_label' | t }}</label>
+							<input type="email" value="" name="email" id="recover-email" placeholder="{{ 'customers.login_page.password_reset.email_label' | t }}" autocorrect="off" autocapitalize="off">
+						</div>
+
+						<div class="account__form-row account__form-row--flex form-actions gutter-top--small">
+
+							<button type="submit" class="button button--solid button--regular" >
+                              <!-- {{ 'customers.login_page.password_reset.submit_button' | t }} -->
+                                Send Reset Password Link
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M14.4297 5.92999L20.4997 12L14.4297 18.07" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M3.5 12H20.33" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+
+							
+
+						</div>
+					</div>
+				{% endform %}
+
+			</div>
+
+			{% if shop.checkout.guest_login %}
+
+				<h3 class="title h0" style="margin-top: 2em;">{{ 'customers.login_page.guest_check' | t }}</h3>
+
+				{% form 'guest_login' %}
+					<button type="submit" class="button button--solid button--wide" >{{ 'customers.login_page.guest_button' | t }}</button>
+				{% endform %}
+				
+			{% endif %}
+         </div>
+
+	</div>
+
+</div>
+
+<script>
+
+	function showRecoverPasswordForm() {
+		document.getElementById('recover_password').style.display = 'block';
+		document.getElementById('customer_login').style.display='none';
+	}
+
+	function hideRecoverPasswordForm() {
+		document.getElementById('recover_password').style.display = 'none';
+		document.getElementById('customer_login').style.display = 'block';
+	}
+
+	if (window.location.hash == '#recover') { showRecoverPasswordForm() }
+
+</script>
+
+{% if reset_success %}
+  <style type="text/css">
+    #resetSuccess { 
+      display: block !important;
+      margin-top: 25px;
+    }
+  </style>
+{% endif %}
+
+{% schema %}
+  {
+    "name": "t:sections.local-extra-words.sections.customers.login.name",
+    "class": "section--remove-bottom-margin-after"
+  }
+{% endschema %}

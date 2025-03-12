@@ -1,0 +1,58 @@
+<div class="card js-collection-item yo text-align--center" {{ shopify_attributes }}>
+	
+	{%- if collection.url != "" -%}
+		<div class="card__whole-link" >
+	{%- endif -%}
+      <div class="card__text gutter--small spacing--xsmall remove-empty-space">
+            <span class="text-line-height--medium">
+                <h2 class="text-size--regular text-animation--underline-thin">
+                    {%- liquid
+                        unless collection.title == blank
+                            echo collection.title | escape
+                        else
+                            echo 'general.onboarding.collection_title' | t
+                        endunless
+                    -%}
+                </h2>
+            </span>
+		</div>
+        <div class="single-collection-page">
+          <a href="{{ collection.url | escape }}" title="{{ collection.title | escape }}">
+            Shop Now 
+            <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 8.5H15M15 8.5L8 1.5M15 8.5L8 15.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+		<div 
+			class="card__image border-radius-top"
+		>
+			{%- liquid
+				unless image == blank
+					assign collection_image = image
+				else
+					assign collection_image = collection.featured_image
+				endunless
+			-%}
+	
+			{%- unless collection_image == blank %}
+				{%- liquid
+          if section.index == 1 and index <= 3
+            assign preload = true
+          else
+            assign preload = false
+          endif
+					render 'lazy-image', image: collection_image, type: 'background', alt: collection.title, sizes: sizes,  class: 'lazy-image--animation element--border-radius-top', preload: preload 
+				-%}
+			{%- else -%}
+				{%- assign no = index | modulo: 6 | plus: 1 -%}
+				{{ 'collection-X' | replace: 'X', no | placeholder_svg_tag }}
+			{%- endunless -%}
+		</div>
+
+
+	{%- if collection.url != "" -%}
+		</div>
+	{%- endif -%}
+
+</div>

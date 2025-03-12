@@ -1,0 +1,278 @@
+{{ 'section-main-article.css' | asset_url | stylesheet_tag }}
+
+{%- assign date_format = 'general.date_format.month_day_year' | t -%}
+
+{%- for block in section.blocks -%}
+
+  {%- liquid
+    if forloop.first 
+      assign container_space_class = 'container--vertical-space-small'
+    else
+      assign container_space_class = 'container--vertical-space-xsmall'
+    endif
+  -%}
+
+  {%- case block.type -%}
+
+    {%- when 'title' -%}
+    
+      <div class="container container--large {{ container_space_class }} main-page" {{ block.shopify_attributes }}>
+        <header>
+          <div class="rte article">
+            <h1 class="h2">{{ article.title | escape }}</h1>
+            <div class="blog-item__meta">
+
+              {%- if block.settings.blog_show_date -%}
+                <span class="blog-item__date text-size--small">{{ article.published_at | date: date_format }}</span>
+              {%- endif -%}
+
+              {%- if block.settings.blog_show_author -%}
+                <span class="blog-item__author text-size--small">{{ article.author | escape }}</span>
+              {%- endif -%}
+
+              {%- if block.settings.blog_show_comments -%}
+                <span class="blog-item__date text-size--small">{{ 'blog.grid.comments_count' | t: count: article.comments_count }}</span>
+              {%- endif -%}
+              
+            </div>
+          </div>
+        </header>
+      </div>
+    
+    {%- when 'featured_image' -%}
+
+      {%- if article.image -%}
+        <div class="container--{% if block.settings.is_fullwidth %}large{% else %}medium{% endif %} {{ container_space_class }} container--no-margin-if-not-first" {{ block.shopify_attributes }}>
+          <div class="article">
+            <div class="article__featured-image element--border-radius">
+              {%- liquid
+                if block.settings.aspect_ratio == 'natural'
+                  assign aspect_ratio = article.image.aspect_ratio
+                else 
+                  assign aspect_ratio = block.settings.aspect_ratio
+                endif
+                assign sizes = 'sizes="(max-width: 1360px) 100vw, 1280px"'
+                render 'lazy-image', image: article.image.src, alt: article.title, ratio: aspect_ratio, sizes: sizes, preload: true
+              %}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    
+    {%- when 'content' -%}
+
+      <div class="container container--large {{ container_space_class }} main-page" {{ block.shopify_attributes }}>
+
+        <div class="article {% if block.settings.has_social_buttons or block.settings.has_tags %} article--indent-for-social {% endif %}" >
+
+          {%- if block.settings.has_social_buttons or block.settings.has_tags -%}
+
+            <div class="article__meta">
+              <div class="article__meta__sticky">
+
+                {%- if block.settings.has_social_buttons -%}
+
+                  <div class="article__meta-social">
+                    <span class="text-size--large">
+                      <!-- {{ 'general.sharing.title' | t }} -->
+                        Share Post:
+                    </span>
+                    <div class="social-icons gutter-top--small">
+
+                      {%- liquid
+                        assign share_link = shop.url | append: article.url
+                        assign share_title = article.title | url_param_escape
+                        if article.image
+                          assign share_image = article.image | image_url: width: 1024
+                        else  
+                          assign share_image = page_image | image_url: width: 1024
+                        endif
+                      -%}
+                      <button id="copyLink" data-link="{{ share_link }}">
+                        <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15.1315 13.554H5.13151C4.46847 13.554 3.83258 13.2906 3.36374 12.8218C2.8949 12.353 2.63151 11.7171 2.63151 11.054V4.38737C2.63151 4.16636 2.54371 3.95439 2.38743 3.79811C2.23115 3.64183 2.01919 3.55404 1.79818 3.55404C1.57716 3.55404 1.3652 3.64183 1.20892 3.79811C1.05264 3.95439 0.964844 4.16636 0.964844 4.38737V11.054C0.964844 12.1591 1.40383 13.2189 2.18523 14.0003C2.57214 14.3872 3.03147 14.6941 3.537 14.9035C4.04252 15.1129 4.58434 15.2207 5.13151 15.2207H15.1315C15.3525 15.2207 15.5645 15.1329 15.7208 14.9766C15.877 14.8203 15.9648 14.6084 15.9648 14.3874C15.9648 14.1664 15.877 13.9544 15.7208 13.7981C15.5645 13.6418 15.3525 13.554 15.1315 13.554ZM19.2982 6.00404C19.2895 5.92748 19.2727 5.85206 19.2482 5.77904V5.70404C19.2081 5.61835 19.1547 5.53959 19.0898 5.4707L14.0898 0.470703C14.021 0.405883 13.9422 0.352437 13.8565 0.31237H13.7815L13.5148 0.220703H6.79818C6.13514 0.220703 5.49925 0.484095 5.03041 0.952936C4.56157 1.42178 4.29818 2.05766 4.29818 2.7207V9.38737C4.29818 10.0504 4.56157 10.6863 5.03041 11.1551C5.49925 11.624 6.13514 11.8874 6.79818 11.8874H16.7982C17.4612 11.8874 18.0971 11.624 18.5659 11.1551C19.0348 10.6863 19.2982 10.0504 19.2982 9.38737V6.05404C19.2982 6.05404 19.2982 6.05404 19.2982 6.00404ZM14.2982 3.06237L16.4565 5.2207H15.1315C14.9105 5.2207 14.6985 5.13291 14.5423 4.97662C14.386 4.82034 14.2982 4.60838 14.2982 4.38737V3.06237ZM17.6315 9.38737C17.6315 9.60838 17.5437 9.82034 17.3874 9.97663C17.2312 10.1329 17.0192 10.2207 16.7982 10.2207H6.79818C6.57716 10.2207 6.3652 10.1329 6.20892 9.97663C6.05264 9.82034 5.96484 9.60838 5.96484 9.38737V2.7207C5.96484 2.49969 6.05264 2.28773 6.20892 2.13145C6.3652 1.97517 6.57716 1.88737 6.79818 1.88737H12.6315V4.38737C12.6315 5.05041 12.8949 5.6863 13.3637 6.15514C13.8326 6.62398 14.4685 6.88737 15.1315 6.88737H17.6315V9.38737Z" fill="#F8FAFB"/>
+                        </svg>
+                        Copy Link
+                      </button>
+                      
+                      <script>
+                      document.getElementById('copyLink').addEventListener('click', function (event) {
+                        event.preventDefault(); // Prevent the link from navigating
+                        const linkToCopy = this.getAttribute('data-link'); // Get the link from the data attribute
+                      
+                        navigator.clipboard.writeText(linkToCopy).then(() => {
+                          alert('Link copied to clipboard!');
+                        }).catch((err) => {
+                          console.error('Failed to copy the link: ', err);
+                        });
+                      });
+                      </script>
+
+                      <a href="//www.facebook.com/sharer.php?u={{ share_link }}" target="_blank">
+                        <span class="visually-hidden">{{ 'general.sharing.facebook' | t }}</span>
+                        <span class="icon" aria-hidden="true">{%- render 'theme-symbols', icon: 'facebook' -%}</span>
+                      </a>
+
+                      <a href="twitter.com/intent/tweet?text={{ share_title }}&amp;url={{ share_link }}" target="_blank">
+                        <span class="visually-hidden">{{ 'general.sharing.twitter' | t }}</span>
+                        <span class="icon" aria-hidden="true">{%- render 'theme-symbols', icon: 'twitter' -%}</span
+                      ></a>
+
+                      <a href="//pinterest.com/pin/create/button/?url={{ share_link }}&amp;media={{ share_image }}&amp;description={{ share_title }}" target="_blank">
+                        <span class="visually-hidden">{{ 'general.sharing.pinterest' | t }}</span>
+                        <span class="icon" aria-hidden="true">{%- render 'theme-symbols', icon: 'pinterest' -%}</span>
+                      </a>
+
+                    </div>
+                  </div>
+
+                {%- endif -%}
+
+                {%- if block.settings.has_tags -%}
+
+                  {%- unless article.tags == blank -%}
+                    <div class="article__meta-tags">
+                      <span class="text-size--large">{{ 'blog.grid.tags_label' | t }}</span>
+                      <div class="tags gutter-top--small">
+                        {% for tag in article.tags %}
+                          <a class="button button--outline button--small" href="{{ blog.url }}/tagged/{{ tag.handle }}">{{ tag }}</a>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {%- endunless -%}
+          
+                {%- endif -%}
+
+              </div>
+            </div>
+          {%- endif -%}
+          
+          <div class="article__content rte">
+            {{ article.content }}
+          </div>
+
+          {%- if block.settings.enhance_product_links -%}
+            <script>
+              document.querySelectorAll('.article__content a[href]').forEach((link, i)=>{
+                if ( link.getAttribute('href').includes('products') ) {
+                  const enhancedLink = document.createElement('quick-view-product');
+                  enhancedLink.innerHTML = `<a href="${link.href}" data-js-product-add-to-cart data-id="product-{{ block.id }}-${i}">
+                    ${link.textContent}
+                  </a>`
+                  link.parentNode.replaceChild(enhancedLink, link)
+                }
+              })
+            </script> 
+          {%- endif -%}
+
+        </div>
+      </div>
+
+    {%- endcase -%}
+
+  </div>
+    
+{%- endfor -%}
+
+{% schema %}
+	{
+    "name": "t:sections.local-extra-words.sections.main-article.name",
+    "class": "article",
+    "tag": "article",
+    "blocks": [
+      {
+        "type": "featured_image",
+        "name": "t:sections.main-article.blocks.featured_image.name",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "select",
+            "id": "aspect_ratio",
+            "label": "t:settings_schema.product-grid.settings.aspect_ratio.label",
+            "options": [
+              {
+                "value": "natural",
+                "label": "t:sections.gallery.settings.aspect_ratio.options__5.label",
+                "group": "t:sections.gallery.settings.aspect_ratio.options__5.group"
+              },
+              {
+                "value": "1.33333",
+                "label": "t:sections.gallery.settings.aspect_ratio.options__1.label",
+                "group": "t:sections.gallery.settings.aspect_ratio.options__1.group"
+              },
+              {
+                "value": "1",
+                "label": "t:sections.gallery.settings.aspect_ratio.options__2.label",
+                "group": "t:sections.gallery.settings.aspect_ratio.options__1.group"
+              },
+              {
+                "value": "0.83333",
+                "label": "t:sections.gallery.settings.aspect_ratio.options__3.label",
+                "group": "t:sections.gallery.settings.aspect_ratio.options__1.group"
+              }
+            ],
+            "default": "natural"
+          },
+          {
+            "type": "checkbox",
+            "id": "is_fullwidth",
+            "label": "t:sections.local-extra-words.sections.rich-text.settings.fullwidth.label",
+            "default": true
+          }
+        ]
+      },
+      {
+      "type": "title",
+        "name": "t:sections.main-article.blocks.title.name",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "blog_show_date",
+            "label": "t:sections.main-article.blocks.title.settings.blog_show_date.label",
+            "default": true
+          },
+          {
+            "type": "checkbox",
+            "id": "blog_show_author",
+            "label": "t:sections.main-article.blocks.title.settings.blog_show_author.label",
+            "default": true
+          },
+          {
+            "type": "checkbox",
+            "id": "blog_show_comments",
+            "label": "t:sections.main-article.blocks.title.settings.blog_show_comments.label",
+            "default": false
+          }
+        ]
+      },
+      {
+        "type": "content",
+        "name": "t:sections.main-article.blocks.content.name",
+        "limit": 1,
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "has_social_buttons",
+            "label": "t:sections.main-article.blocks.social_sharing.name",
+            "default": true
+          },
+          {
+            "type": "checkbox",
+            "id": "has_tags",
+            "label": "t:sections.local-extra-words.sections.main-article.settings.show_tags",
+            "default": true
+          },
+          {
+            "type": "checkbox",
+            "id": "enhance_product_links",
+            "label": "t:sections.local-extra-words.sections.main-article.settings.enhance_product_links.label",
+            "info": "t:sections.local-extra-words.sections.main-article.settings.enhance_product_links.info",
+            "default": false
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
